@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.discovery.module.main">
+
+    <!--作为组件开发模式下的Manifest文件，不能设置壳app所设置的属性-->
+    <application android:theme="@style/AppTheme">
+
+        <!--当然，此处依然是可以进行四大组件的注册操作的。。。-->
+
+        <activity
+            android:name=".MainSplashActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>

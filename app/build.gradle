@@ -1,0 +1,93 @@
+apply plugin: 'com.android.application'
+
+android {
+
+    //项目SDK环境基本配置
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.discovery.module.demo"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        /*javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [ moduleName : project.getName() ]
+            }
+        }*/
+    }
+
+    //签名相关配置，需要放在buildTypes前面，否则编译报错
+    signingConfigs {
+        releaseConfigs {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile file(project.rootDir.absolutePath + File.separator + 'keystore/discovery.jks')
+            storePassword RELEASE_PW//签名密码
+            keyAlias RELEASE_ALIAS//别名
+            keyPassword RELEASE_ALIAS_PW//别名密码
+        }
+        debugConfigs {
+            v1SigningEnabled true
+            v2SigningEnabled true
+            storeFile file(project.rootDir.absolutePath + File.separator + 'keystore/debug.keystore')
+            storePassword DEBUG_PW
+            keyAlias DEBUG_ALIAS
+            keyPassword DEBUG_ALIAS_PW
+        }
+    }
+
+    buildTypes {
+        release {
+            // 是否zip对齐
+            zipAlignEnabled true
+            // 删除未被引用的resource文件
+            //shrinkResources true
+            // 是否开启混淆
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.releaseConfigs
+        }
+        debug {
+            zipAlignEnabled false
+            //shrinkResources false
+            minifyEnabled false
+            signingConfig signingConfigs.debugConfigs
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            // 自定义输出路径
+            variant.getPackageApplication().outputDirectory =
+                    new File(project.rootDir.absolutePath + File.separator + "outputs")
+            // 自定义文件名{示例：AppName-debug-v1.0.0_201807301409}
+            outputFileName = PROJECT_NAME + "-${variant.buildType.name}-v${variant.versionName}_${Time()}.apk"
+        }
+    }
+
+}
+
+static def Time() {
+    return new Date().format("yyyyMMddHHmm", TimeZone.getTimeZone("GMT+08:00"))
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+    //在组件开发模式下，壳工程只需要依赖module_common即可，集成开发模式先需要依赖所有组件
+    if (IS_MODULE.toBoolean()) {
+        implementation project(':module_common')
+    } else {
+        implementation project(':module_common')
+        implementation project(':module_main')
+        implementation project(':module_news')
+    }
+}
